@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>The Research Methods Case Files</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink: #1e1a14;
+    --paper: #e6d8b5;
+    --paper-dark: #d8c79a;
+    --board: #1b2420;
+    --board-line: #2c3833;
+    --stamp-red: #8a2f2b;
+    --brass: #b3862c;
+    --brass-bright: #d4a94a;
+    --folder-shadow: rgba(0,0,0,.45);
+  }
+
+  *{box-sizing:border-box;}
+
+  body{
+    margin:0;
+    background: var(--board);
+    background-image:
+      radial-gradient(ellipse at top left, rgba(179,134,44,0.06), transparent 55%),
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 3px);
+    color: var(--paper);
+    font-family: 'Special Elite', monospace;
+    min-height: 100vh;
+    padding: 0 0 60px 0;
+  }
+
+  header{
+    padding: 40px 24px 28px;
+    text-align:center;
+    border-bottom: 2px solid var(--board-line);
+  }
+  .eyebrow-stamp{
+    display:inline-block;
+    border: 2px solid var(--stamp-red);
+    color: var(--stamp-red);
+    font-family:'Oswald', sans-serif;
+    font-weight:700;
+    font-size: 13px;
+    letter-spacing: 2px;
+    padding: 4px 14px;
+    transform: rotate(-2deg);
+    margin-bottom: 18px;
+    text-transform: uppercase;
+  }
+  h1{
+    font-family:'Oswald', sans-serif;
+    font-weight: 700;
+    font-size: clamp(28px, 5vw, 46px);
+    margin: 0 0 10px;
+    color: var(--brass-bright);
+    letter-spacing: 0.5px;
+  }
+  .subhead{
+    max-width: 640px;
+    margin: 0 auto;
+    font-size: 15px;
+    line-height: 1.7;
+    color: #cfc19a;
+  }
+
+  .briefing{
+    max-width: 780px;
+    margin: 34px auto 10px;
+    padding: 22px 26px;
+    background: rgba(230,216,181,0.06);
+    border: 1px solid var(--board-line);
+    border-left: 4px solid var(--brass);
+  }
+  .briefing h2{
+    font-family:'Oswald', sans-serif;
+    font-size: 18px;
+    color: var(--brass-bright);
+    margin: 0 0 12px;
+    letter-spacing: 0.5px;
+  }
+  .briefing ol{
+    margin: 0;
+    padding-left: 20px;
+    line-height: 1.85;
+    font-size: 14.5px;
+    color: #ddd0ac;
+  }
+  .briefing .notebook-note{
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--board-line);
+    font-size: 13.5px;
+    color: #a99b76;
+    font-style: normal;
+  }
+
+  .board-label{
+    text-align:center;
+    font-family:'Oswald', sans-serif;
+    font-size: 12px;
+    letter-spacing: 3px;
+    color: #6f7d76;
+    text-transform: uppercase;
+    margin: 38px 0 18px;
+  }
+
+  .case-grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 22px;
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  .folder{
+    background: var(--paper);
+    color: var(--ink);
+    border-radius: 2px 2px 8px 8px;
+    padding: 22px 20px 20px;
+    position: relative;
+    cursor: pointer;
+    box-shadow: 0 8px 18px var(--folder-shadow);
+    transition: transform .15s ease;
+    border-top: 10px solid var(--paper-dark);
+  }
+  .folder:hover{ transform: translateY(-4px); }
+  .folder:focus-visible{ outline: 3px solid var(--brass-bright); outline-offset: 3px; }
+
+  .folder .tab{
+    position:absolute;
+    top: -10px; left: 20px;
+    background: var(--stamp-red);
+    color: var(--paper);
+    font-family:'Oswald', sans-serif;
+    font-size: 11px;
+    font-weight:600;
+    letter-spacing: 1px;
+    padding: 3px 10px;
+    border-radius: 0 0 4px 4px;
+  }
+  .folder h3{
+    font-family:'Oswald', sans-serif;
+    font-size: 18px;
+    margin: 14px 0 8px;
+  }
+  .folder p.teaser{
+    font-size: 13px;
+    line-height: 1.6;
+    color: #4a4130;
+    margin: 0;
+  }
+  .folder .open-hint{
+    display:block;
+    margin-top: 14px;
+    font-family:'Oswald', sans-serif;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    color: var(--stamp-red);
+    text-transform: uppercase;
+  }
+
+  /* Modal */
+  .overlay{
+    display:none;
+    position: fixed; inset: 0;
+    background: rgba(10,14,12,0.82);
+    z-index: 50;
+    padding: 30px 16px;
+    overflow-y: auto;
+  }
+  .overlay.active{ display:block; }
+
+  .case-file{
+    max-width: 720px;
+    margin: 0 auto;
+    background: var(--paper);
+    color: var(--ink);
+    border-radius: 3px;
+    padding: 32px 30px 30px;
+    position: relative;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+  }
+  .close-btn{
+    position: absolute;
+    top: 14px; right: 16px;
+    background: none;
+    border: none;
+    font-family:'Oswald', sans-serif;
+    font-size: 13px;
+    letter-spacing: 1px;
+    color: var(--stamp-red);
+    cursor: pointer;
+    padding: 6px 10px;
+  }
+  .case-file .case-number{
+    font-family:'Oswald', sans-serif;
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: var(--stamp-red);
+    text-transform: uppercase;
+  }
+  .case-file h2{
+    font-family:'Oswald', sans-serif;
+    font-size: 26px;
+    margin: 6px 0 18px;
+  }
+  .case-file .scenario{
+    font-size: 15px;
+    line-height: 1.8;
+    background: rgba(0,0,0,0.04);
+    border-left: 3px solid var(--brass);
+    padding: 14px 16px;
+    margin-bottom: 22px;
+  }
+
+  .task-block{
+    margin-bottom: 18px;
+    padding-bottom: 18px;
+    border-bottom: 1px dashed #b6a06a;
+  }
+  .task-block:last-of-type{ border-bottom: none; }
+  .task-block .label{
+    font-family:'Oswald', sans-serif;
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #6b5a30;
+    margin-bottom: 6px;
+    display:block;
+  }
+  .task-block p{
+    margin: 0;
+    font-size: 14.5px;
+    line-height: 1.7;
+  }
+
+  .reveal-btn{
+    display:inline-block;
+    margin-top: 8px;
+    background: var(--stamp-red);
+    color: var(--paper);
+    font-family:'Oswald', sans-serif;
+    font-size: 13px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  .reveal-btn:hover{ background: #6f2320; }
+
+  .answer{
+    display:none;
+    margin-top: 14px;
+    padding: 14px 16px;
+    background: rgba(139,47,43,0.08);
+    border: 1px solid var(--stamp-red);
+    border-radius: 3px;
+  }
+  .answer.shown{ display:block; }
+  .answer .stamped{
+    font-family:'Oswald', sans-serif;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--stamp-red);
+    text-transform: uppercase;
+    display:block;
+    margin-bottom: 8px;
+  }
+  .answer p{ margin: 0 0 8px; font-size: 14px; line-height: 1.65; }
+  .answer p:last-child{ margin-bottom: 0; }
+
+  .isn-template{
+    margin-top: 24px;
+    padding: 16px 18px;
+    background: #f2e9cf;
+    border: 2px dashed #a48f5b;
+    border-radius: 3px;
+  }
+  .isn-template .label{
+    font-family:'Oswald', sans-serif;
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    color: #6b5a30;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    display:block;
+  }
+  .isn-template ul{
+    margin: 0; padding-left: 18px;
+    font-size: 13.5px;
+    line-height: 2;
+  }
+
+  footer{
+    text-align:center;
+    margin-top: 40px;
+    font-size: 12px;
+    color: #5c6a63;
+    letter-spacing: 1px;
+  }
+
+  @media (max-width: 520px){
+    .case-file{ padding: 26px 18px 22px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow-stamp">Classified &mdash; Group Eyes Only</div>
+  <h1>The Research Methods Case Files</h1>
+  <p class="subhead">Six behavioral science cases are on the board. Your group is the investigative team. No detective (teacher) required &mdash; the case files talk to you directly.</p>
+</header>
+
+<div class="briefing">
+  <h2>Your Assignment</h2>
+  <ol>
+    <li>Open a case file below. Read the scenario together as a group.</li>
+    <li>Decide which research method was used &mdash; write it in your ISN before you check.</li>
+    <li>Answer the "gotcha" question. This is the part that actually separates a real detective from a guesser.</li>
+    <li>Rate the case 1&ndash;5 on how much it can prove cause and effect, and defend your rating in one sentence.</li>
+    <li>Click "Reveal Findings" to check your work. If your group disagrees with the file, write your objection in your ISN &mdash; you can raise it with your teacher later.</li>
+  </ol>
+  <p class="notebook-note">Copy the "Case Log" box at the bottom of each file into your ISN before moving to the next case. Work through all six before time is called.</p>
+</div>
+
+<p class="board-label">&mdash; Open Cases &mdash;</p>
+
+<div class="case-grid">
+  <div class="folder" tabindex="0" onclick="openCase(1)" onkeypress="if(event.key==='Enter')openCase(1)">
+    <span class="tab">Case 01</span>
+    <h3>The Cafeteria Files</h3>
+    <p class="teaser">A researcher watches lunchroom behavior for two weeks without saying a word to anyone.</p>
+    <span class="open-hint">Open File &rarr;</span>
+  </div>
+  <div class="folder" tabindex="0" onclick="openCase(2)" onkeypress="if(event.key==='Enter')openCase(2)">
+    <span class="tab">Case 02</span>
+    <h3>The Lunch Line Poll</h3>
+    <p class="teaser">Two hundred students fill out a five-question form about stress and sleep.</p>
+    <span class="open-hint">Open File &rarr;</span>
+  </div>
+  <div class="folder" tabindex="0" onclick="openCase(3)" onkeypress="if(event.key==='Enter')openCase(3)">
+    <span class="tab">Case 03</span>
+    <h3>The Viral Meltdown</h3>
+    <p class="teaser">One influencer, six months of interviews, one very deep dive.</p>
+    <span class="open-hint">Open File &rarr;</span>
+  </div>
+  <div class="folder" tabindex="0" onclick="openCase(4)" onkeypress="if(event.key==='Enter')openCase(4)">
+    <span class="tab">Case 04</span>
+    <h3>The Screen Time Study</h3>
+    <p class="teaser">More screen time, lower mood &mdash; but is one actually causing the other?</p>
+    <span class="open-hint">Open File &rarr;</span>
+  </div>
+  <div class="folder" tabindex="0" onclick="openCase(5)" onkeypress="if(event.key==='Enter')openCase(5)">
+    <span class="tab">Case 05</span>
+    <h3>The Yearbook Investigation</h3>
+    <p class="teaser">Forty years of yearbooks, zero current students interviewed.</p>
+    <span class="open-hint">Open File &rarr;</span>
+  </div>
+  <div class="folder" tabindex="0" onclick="openCase(6)" onkeypress="if(event.key==='Enter')openCase(6)">
+    <span class="tab">Case 06</span>
+    <h3>The Elevator Test</h3>
+    <p class="teaser">A rigged elevator, a stranger facing backward, and a stopwatch.</p>
+    <span class="open-hint">Open File &rarr;</span>
+  </div>
+</div>
+
+<footer>End of case list &mdash; six files, six methods, one detective agency (yours).</footer>
+
+<!-- CASE 1 -->
+<div class="overlay" id="overlay-1">
+  <div class="case-file">
+    <button class="close-btn" onclick="closeCase(1)">CLOSE FILE ✕</button>
+    <span class="case-number">Case File 01</span>
+    <h2>The Cafeteria Files</h2>
+    <div class="scenario">A psychology student sits quietly at a corner table every day for two weeks, clipboard in hand. She never talks to anyone or asks a single question. She just writes down who sits where, how loud each table gets, and how long groups stay after the bell rings. She never lets the students know she's watching.</div>
+
+    <div class="task-block">
+      <span class="label">Task 1 &mdash; Name the Method</span>
+      <p>Which research method is this? Write your group's answer in your ISN before revealing.</p>
+    </div>
+    <div class="task-block">
+      <span class="label">Task 2 &mdash; The Gotcha</span>
+      <p>A teammate says this is a survey because she's "collecting data on people." What's actually missing that would make it a real survey?</p>
+    </div>
+    <div class="task-block">
+      <span class="label">Task 3 &mdash; Trust Rating</span>
+      <p>Rate this case 1&ndash;5 on how well it can prove cause and effect. Defend it in one sentence.</p>
+    </div>
+
+    <button class="reveal-btn" onclick="reveal(1)">Reveal Findings</button>
+    <div class="answer" id="answer-1">
+      <span class="stamped">Findings Confirmed</span>
+      <p><strong>Method:</strong> Naturalistic observation &mdash; watching behavior in a real, natural setting without interfering.</p>
+      <p><strong>Gotcha answer:</strong> A survey requires directly asking participants questions. She never asked anyone anything &mdash; she only watched and recorded. No questions asked means no survey.</p>
+      <p><strong>Trust rating guide:</strong> Around 2&ndash;3/5 for cause and effect. It captures real behavior, but it can't explain <em>why</em> students act that way, and results from one cafeteria may not generalize elsewhere.</p>
+    </div>
+
+    <div class="isn-template">
+      <span class="label">Copy into your ISN &mdash; Case Log 01</span>
+      <ul>
+        <li>Method: ____________________</li>
+        <li>Evidence phrase: ____________________</li>
+        <li>Gotcha answer: ____________________</li>
+        <li>Trust rating (1&ndash;5) + why: ____________________</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- CASE 2 -->
+<div class="overlay" id="overlay-2">
+  <div class="case-file">
+    <button class="close-btn" onclick="closeCase(2)">CLOSE FILE ✕</button>
+    <span class="case-number">Case File 02</span>
+    <h2>The Lunch Line Poll</h2>
+    <div class="scenario">A teacher hands out a five-question form asking students to rate how stressed they feel on a scale of 1&ndash;10, how many hours they sleep, and whether they check their phone before bed. Two hundred students across three grade levels fill it out anonymously in one class period.</div>
+
+    <div class="task-block">
+      <span class="label">Task 1 &mdash; Name the Method</span>
+      <p>Which research method is this? Write your group's answer in your ISN before revealing.</p>
+    </div>
+    <div class="task-block">
+      <span class="label">Task 2 &mdash; The Gotcha</span>
+      <p>A teammate says this can't count because "no one is being interviewed in person." Is that correct?</p>
+    </div>
+    <div class="task-block">
+      <span class="label">Task 3 &mdash; Trust Rating</span>
+      <p>Rate this case 1&ndash;5 on how well it can prove cause and effect. Defend it in one sentence.</p>
+    </div>
+
+    <button class="reveal-btn" onclick="reveal(2)">Reveal Findings</button>
+    <div class="answer" id="answer-2">
+      <span class="stamped">Findings Confirmed</span>
+      <p><strong>Method:</strong> Survey &mdash; a list of questions given to a sample of people, gathering self-reported data.</p>
+      <p><strong>Gotcha answer:</strong> Incorrect. Surveys don't have to be spoken interviews &mdash; a written questionnaire still counts as a survey. What makes it a survey is that participants are directly asked questions, whether on paper, online, or aloud.</p>
+      <p><strong>Trust rating guide:</strong> Around 2&ndash;3/5 for cause and effect, but strong for spotting patterns across a large group. The weak point is self-reported data &mdash; students might misremember or answer in ways that make them look good.</p>
+    </div>
+
+    <div class="isn-template">
+      <span class="label">Copy into your ISN &mdash; Case Log 02</span>
+      <ul>
+        <li>Method: ____________________</li>
+        <li>Evidence phrase: ____________________</li>
+        <li>Gotcha answer: ____________________</li>
+        <li>Trust rating (1&ndash;5) + why: ____________________</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- CASE 3 -->
+<div class="overlay" id="overlay-3">
+  <div class="case-file">
+    <button class="close-btn" onclick="closeCase(3)">CLOSE FILE ✕</button>
+    <span class="case-number">Case File 03</span>
+    <h2>The Viral Meltdown</h2>
+    <div class="scenario">After a popular teen influencer had a public breakdown live on stream, a psychologist spent six months interviewing her, her family, and her former manager, while also reviewing years of her old posts, to understand exactly what led to that moment.</div>
+
+    <div class="task-block">
+      <span class="label">Task 1 &mdash; Name the Method</span>
+      <p>Which research method is this? Write your group's answer in your ISN before revealing.</p>
+    </div>
+    <div class="task-block">
+      <span class="label">Task 2 &mdash; The Gotcha</span>
+      <p>A teammate says this is archival research because they "reviewed old posts." What's the key difference?</p>
+    </div>
+    <div class="task-block">
+      <span class="label">Task 3 &mdash; Trust Rating</span>
+      <p>Rate this case 1&ndash;5 on how well it can prove cause and effect. Defend it in one sentence.</p>
+    </div>
+
+    <button class="reveal-btn" onclick="reveal(3)">Reveal Findings</button>
+    <div class="answer" id="answer-3">
+      <span class="stamped">Findings Confirmed</span>
+      <p><strong>Method:</strong> Case (clinical) study &mdash; an in-depth look at one individual using multiple sources of information.</p>
+      <p><strong>Gotcha answer:</strong> Archival research only uses existing records, with no new contact with people. This case involved brand-new interviews with the influencer and people around her &mdash; the old posts were just one piece of a much deeper, ongoing investigation into one person.</p>
+      <p><strong>Trust rating guide:</strong> Around 1&ndash;2/5 for cause and effect and for generalizing to other people. Case studies give incredible depth on one person but the findings may not apply to teens or influencers in general.</p>
+    </div>
+
+    <div class="isn-template">
+      <span class="label">Copy into your ISN &mdash; Case Log 03</span>
+      <ul>
+        <li>Method: ____________________</li>
+        <li>Evidence phrase: ____________________</li>
+        <li>Gotcha answer: ____________________</li>
+        <li>Trust rating (1&ndash;5) + why: ____________________</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- CASE 4 -->
+<div class="overlay" id="overlay-4">
+  <div class="case-file">
+    <button class="close-btn" onclick="closeCase(4)">CLOSE FILE ✕</button>
+    <span class="case-number">Case File 04</span>
+    <h2>The Screen Time Study</h2>
+    <div class="scenario">Researchers gave 150 students an app that automatically logged their daily screen time, then had each student separately rate their mood every night for a month. When the two sets of numbers were graphed against each other, students with more screen time tended to report lower mood &mdash; but not always.</div>
+
+    <div class="task-block">
+      <span class="label">Task 1 &mdash; Name the Method</span>
+      <p>Which research method is this? Write your group's answer in your ISN before revealing.</p>
+    </div>
+    <div class="task-block">
+      <span class="label">Task 2 &mdash; The Gotcha</span>
+      <p>A teammate insists this proves phones cause bad moods. What's the counter-argument?</p>
+    </div>
+    <div class="task-block">
+      <span class="label">Task 3 &mdash; Trust Rating</span>
+      <p>Rate this case 1&ndash;5 on how well it can prove cause and effect. Defend it in one sentence.</p>
+    </div>
+
+    <button class="reveal-btn" onclick="reveal(4)">Reveal Findings</button>
+    <div class="answer" id="answer-4">
+      <span class="stamped">Findings Confirmed</span>
+      <p><strong>Method:</strong> Correlational study &mdash; measuring two existing variables to see if they're related, without manipulating anything.</p>
+      <p><strong>Gotcha answer:</strong> Correlation is not causation. A confounding variable &mdash; like poor sleep or stress &mdash; could be driving both higher screen time and lower mood at the same time, without either one directly causing the other.</p>
+      <p><strong>Trust rating guide:</strong> Around 1&ndash;2/5 for proving cause and effect, but 4/5 for spotting a real relationship worth investigating further with an actual experiment.</p>
+    </div>
+
+    <div class="isn-template">
+      <span class="label">Copy into your ISN &mdash; Case Log 04</span>
+      <ul>
+        <li>Method: ____________________</li>
+        <li>Evidence phrase: ____________________</li>
+        <li>Gotcha answer: ____________________</li>
+        <li>Trust rating (1&ndash;5) + why: ____________________</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- CASE 5 -->
+<div class="overlay" id="overlay-5">
+  <div class="case-file">
+    <button class="close-btn" onclick="closeCase(5)">CLOSE FILE ✕</button>
+    <span class="case-number">Case File 05</span>
+    <h2>The Yearbook Investigation</h2>
+    <div class="scenario">A class pulled forty years of the school's yearbooks out of the library archive and coded every club photo by number of members, comparing decades to see if extracurricular participation has changed over time. No current students were interviewed.</div>
+
+    <div class="task-block">
+      <span class="label">Task 1 &mdash; Name the Method</span>
+      <p>Which research method is this? Write your group's answer in your ISN before revealing.</p>
+    </div>
+    <div class="task-block">
+      <span class="label">Task 2 &mdash; The Gotcha</span>
+      <p>A teammate says this is a longitudinal study because it spans decades. What's the actual difference?</p>
+    </div>
+    <div class="task-block">
+      <span class="label">Task 3 &mdash; Trust Rating</span>
+      <p>Rate this case 1&ndash;5 on how well it can prove cause and effect. Defend it in one sentence.</p>
+    </div>
+
+    <button class="reveal-btn" onclick="reveal(5)">Reveal Findings</button>
+    <div class="answer" id="answer-5">
+      <span class="stamped">Findings Confirmed</span>
+      <p><strong>Method:</strong> Archival research &mdash; studying existing records to look for patterns, without collecting any new data from people.</p>
+      <p><strong>Gotcha answer:</strong> A longitudinal study follows the <em>same</em> people forward in time, collecting new data from them again and again. This investigation never contacted a single person &mdash; it only reused records that already existed, which is what makes it archival.</p>
+      <p><strong>Trust rating guide:</strong> Around 2&ndash;3/5. It reveals real historical trends, but researchers have no control over what was recorded or how &mdash; some clubs may never have been photographed at all.</p>
+    </div>
+
+    <div class="isn-template">
+      <span class="label">Copy into your ISN &mdash; Case Log 05</span>
+      <ul>
+        <li>Method: ____________________</li>
+        <li>Evidence phrase: ____________________</li>
+        <li>Gotcha answer: ____________________</li>
+        <li>Trust rating (1&ndash;5) + why: ____________________</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- CASE 6 -->
+<div class="overlay" id="overlay-6">
+  <div class="case-file">
+    <button class="close-btn" onclick="closeCase(6)">CLOSE FILE ✕</button>
+    <span class="case-number">Case File 06</span>
+    <h2>The Elevator Test</h2>
+    <div class="scenario">Researchers randomly assigned volunteers into two groups. Group A rode a rigged elevator where a stranger stood facing backward, toward the rear wall, the entire ride. Group B rode the same elevator, but the stranger faced forward like normal. Researchers then measured how many seconds it took each volunteer to start subtly mimicking the stranger's body position.</div>
+
+    <div class="task-block">
+      <span class="label">Task 1 &mdash; Name the Method</span>
+      <p>Which research method is this? Write your group's answer in your ISN before revealing.</p>
+    </div>
+    <div class="task-block">
+      <span class="label">Task 2 &mdash; The Gotcha</span>
+      <p>A teammate says Case 01 (the cafeteria) was also an experiment because researchers were "testing" something. Why is this one actually different?</p>
+    </div>
+    <div class="task-block">
+      <span class="label">Task 3 &mdash; Trust Rating</span>
+      <p>Rate this case 1&ndash;5 on how well it can prove cause and effect. Defend it in one sentence.</p>
+    </div>
+
+    <button class="reveal-btn" onclick="reveal(6)">Reveal Findings</button>
+    <div class="answer" id="answer-6">
+      <span class="stamped">Findings Confirmed</span>
+      <p><strong>Method:</strong> Experiment &mdash; random assignment plus a manipulated independent variable (the stranger's facing direction) and a measured dependent variable (time to mimic).</p>
+      <p><strong>Gotcha answer:</strong> Case 01 only <em>observed</em> behavior that was already happening &mdash; nothing was changed or controlled. This case actually manipulates a variable and randomly assigns people to conditions, which is the only way to make a real cause-and-effect claim.</p>
+      <p><strong>Trust rating guide:</strong> 4&ndash;5/5 for cause and effect &mdash; this is exactly what true experiments are built for. The trade-off is that a staged elevator is more artificial than a real-world setting.</p>
+    </div>
+
+    <div class="isn-template">
+      <span class="label">Copy into your ISN &mdash; Case Log 06</span>
+      <ul>
+        <li>Method: ____________________</li>
+        <li>Evidence phrase: ____________________</li>
+        <li>Gotcha answer: ____________________</li>
+        <li>Trust rating (1&ndash;5) + why: ____________________</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script>
+  function openCase(n){
+    document.getElementById('overlay-' + n).classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeCase(n){
+    document.getElementById('overlay-' + n).classList.remove('active');
+    document.body.style.overflow = '';
+  }
+  function reveal(n){
+    document.getElementById('answer-' + n).classList.add('shown');
+  }
+  document.querySelectorAll('.overlay').forEach(function(ov){
+    ov.addEventListener('click', function(e){
+      if(e.target === ov){
+        ov.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
